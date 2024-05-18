@@ -1,0 +1,32 @@
+{{- if .Values.service.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "main.fullname" . }}
+  labels:
+    {{- include "main.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- if .Values.service.ports }}
+    {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      port: {{ .port }}
+    {{- if .targetPort }}
+      targetPort: {{ .targetPort }}
+    {{- end }}
+    {{- if .protocol }}
+      protocol: {{ .protocol }}
+    {{- else }}
+      protocol: TCP
+    {{- end }}
+  {{- end }}
+  {{- else }}
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetport | default .Values.service.port }}
+      protocol: TCP
+      name: {{ .Values.service.port }}-{{ .Values.service.targetport | default .Values.service.port }}
+  {{- end}}
+  selector:
+    {{- include "main.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,13 @@
+# Helmsman
+.helmsman-tmp
+
+# Ignore archives
+*.tgz
+
+# IDE
+.idea
+*.iml
+.vscode/**/*
+
+# exceptions
+!.vscode/settings.json
