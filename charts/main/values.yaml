@@ -5,7 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: nexus.equilab.io:8443
+  # -- default container image repository
+  repository: ghcr.io/eq-lab
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   name: ""
