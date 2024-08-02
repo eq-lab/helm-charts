@@ -12,7 +12,7 @@ image:
   name: ""
   tag: ""
 
-imagePullSecrets: [name: nexus]
+imagePullSecrets: []
 
 nameOverride: ""
 fullnameOverride: ""
