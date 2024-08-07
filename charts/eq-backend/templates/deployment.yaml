@@ -28,34 +28,34 @@ spec:
       {{- if .Values.secretManager.enabled }}
       serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
       {{- end }}
+      {{- if .Values.migrations.enabled }}
       initContainers:
-        {{- range .Values.initContainers }}
-        - name: {{ .name }}
-          image: "{{ .image.repository }}:{{ .image.tag }}"
-          {{- if .securityContext }}
+        - name: migrations
+          image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag }}"
+          {{- if .Values.migrations.securityContext }}
           securityContext:
-            {{- toYaml .securityContext | nindent 12 }}
+            {{- toYaml .Values.migrations.securityContext | nindent 12 }}
           {{- end }}
-        {{- if $.Values.secretManager.enabled }}
-          {{- if $.Values.secretManager.mount }}
+        {{- if .Values.secretManager.enabled }}
+          {{- if .Values.secretManager.mount }}
           volumeMounts:
             - name: secrets
               mountPath: "/etc/env"
               readOnly: true
           {{- end }}
-          {{- if .cmd }}
+          {{- if .Values.migrations.cmd }}
           command: ["/bin/sh", "-c"]
           args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .cmd }}"]
           {{- end }}
         {{- end }}
           resources:
             limits:
-              cpu: {{ .resources.limits.cpu }}
-              memory: {{ .resources.limits.memory }}
+              cpu: {{ .Values.migrations.resources.limits.cpu }}
+              memory: {{ .Values.migrations.resources.limits.memory }}
             requests:
-              cpu: {{ .resources.requests.cpu }}
-              memory: {{ .resources.requests.memory }}
-        {{- end }}
+              cpu: {{ .Values.migrations.resources.requests.cpu }}
+              memory: {{ .Values.migrations.resources.requests.memory }}
+      {{- end }}
       containers:
         - name: {{ .Values.containers.main.name }}
           {{- if .Values.containers.main.securityContext }}

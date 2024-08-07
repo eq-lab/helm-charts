@@ -1,17 +1,17 @@
 ---
-initContainers:
-  - name: migrations
-    image:
-      repository: ghcr.io/eq-lab/warden-yield/migrations
-      tag: latest
-      pullPolicy: IfNotPresent
-    resources:
-      limits:
-        cpu: "0.25"
-        memory: 500Mi
-      requests:
-        cpu: "0.25"
-        memory: 500Mi
+migrations:
+  enabled: false
+  image:
+    repository: ghcr.io/eq-lab/warden-yield/migrations
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "0.25"
+      memory: 500Mi
+    requests:
+      cpu: "0.25"
+      memory: 500Mi
 containers:
   main:
     name: backend
