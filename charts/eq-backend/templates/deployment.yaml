@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eq-backend.fullname" . }}
+  labels:
+    {{- include "eq-backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "eq-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "eq-backend.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secretManager.enabled }}
+      serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
+      {{- end }}
+      initContainers:
+        {{- range .Values.initContainers }}
+        - name: {{ .name }}
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
+        {{- if $.Values.secretManager.enabled }}
+          {{- if $.Values.secretManager.mount }}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/etc/env"
+              readOnly: true
+          {{- end }}
+          {{- if .cmd }}
+          command: ["/bin/sh", "-c"]
+          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .cmd }}"]
+          {{- end }}
+        {{- end }}
+          resources:
+            limits:
+              cpu: {{ .resources.limits.cpu }}
+              memory: {{ .resources.limits.memory }}
+            requests:
+              cpu: {{ .resources.requests.cpu }}
+              memory: {{ .resources.requests.memory }}
+        {{- end }}
+      containers:
+        - name: {{ .Values.containers.main.name }}
+          {{- if .Values.containers.main.securityContext }}
+          securityContext:
+            {{- toYaml .Values.containers.main.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.containers.main.image.repository }}:{{ .Values.containers.main.image.tag }}"
+          imagePullPolicy: {{ .Values.containers.main.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              protocol: TCP
+        {{- if .Values.secretManager.enabled }}
+          {{- if .Values.secretManager.mount }}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/etc/env"
+              readOnly: true
+          {{- end }}
+          {{- if .Values.containers.main.cmd }}
+          command: ["/bin/sh", "-c"]
+          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .Values.containers.main.cmd }}"]
+          {{- end }}
+        {{- end }}
+          resources:
+            limits:
+              cpu: {{ .Values.containers.main.resources.limits.cpu }}
+              memory: {{ .Values.containers.main.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.containers.main.resources.requests.cpu }}
+              memory: {{ .Values.containers.main.resources.requests.memory }}
+        - name: {{ .Values.containers.sidecar.name }}
+          {{- if .Values.containers.sidecar.securityContext }}
+          securityContext:
+            {{- toYaml .Values.containers.sidecar.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.containers.sidecar.image.repository }}:{{ .Values.containers.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.containers.sidecar.image.pullPolicy }}
+        {{- if .Values.secretManager.enabled }}
+          {{- if .Values.secretManager.mount }}
+          volumeMounts:
+            - name: secrets
+              mountPath: "/etc/env"
+              readOnly: true
+          {{- end }}
+          {{- if .Values.containers.sidecar.cmd }}
+          command: ["/bin/sh", "-c"]
+          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .Values.containers.sidecar.cmd }}"]
+          {{- end }}
+        {{- end }}
+          resources:
+            limits:
+              cpu: {{ .Values.containers.sidecar.resources.limits.cpu }}
+              memory: {{ .Values.containers.sidecar.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.containers.sidecar.resources.requests.cpu }}
+              memory: {{ .Values.containers.sidecar.resources.requests.memory }}
+      {{- if or .Values.volumes .Values.secretManager.enabled }}
+      volumes:
+        {{- if .Values.volumes }}
+        {{- range $k, $v := .Values.volumes }}
+        - name: {{ $v.name | quote }}
+          {{- if $v.secretRef }}
+          secret:
+            secretName: {{ $v.secretRef | quote }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.secretManager.enabled }}
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "eq-backend.fullname" . }}
+        {{- end }}
+      {{- end }}
