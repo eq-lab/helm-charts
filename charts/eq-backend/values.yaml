@@ -54,7 +54,7 @@ secretManager:
     create: false
     name: ""
     annotations: {}
-  secrets: []
+  spec: {}
 
 podAnnotations: {}
 podLabels: {}
