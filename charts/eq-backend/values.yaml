@@ -1,0 +1,89 @@
+---
+initContainers:
+  - name: migrations
+    image:
+      repository: ghcr.io/eq-lab/warden-yield/migrations
+      tag: latest
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: "0.25"
+        memory: 500Mi
+      requests:
+        cpu: "0.25"
+        memory: 500Mi
+containers:
+  main:
+    name: backend
+    image:
+      repository: ghcr.io/eq-lab/warden-yield/presentation
+      tag: latest
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: "1"
+        memory: 2Gi
+  sidecar:
+    name: sidecar
+    image:
+      repository: ghcr.io/eq-lab/warden-yield/services
+      tag: latest
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: "1"
+        memory: 2Gi
+
+replicaCount: 1
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+secretManager:
+  enabled: false
+  # mount volumes to /etc/env
+  mount: true
+  serviceAccount:
+    create: false
+    name: ""
+    annotations: {}
+  secrets: []
+
+podAnnotations: {}
+podLabels: {}
+
+service:
+  type: ClusterIP
+  port: 5000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
