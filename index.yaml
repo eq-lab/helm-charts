@@ -1,6 +1,32 @@
 apiVersion: v1
 entries:
+  eq-backend:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-08-09T13:21:23.870656272Z"
+    description: A Helm chart for Kubernetes
+    digest: dae8d3e1e2962a58994f2fb5513b9a48b2b081a2463133aae0f512add447c11a
+    maintainers:
+    - name: mikolajsobolewski
+    name: eq-backend
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/eq-backend-0.1.2/eq-backend-0.1.2.tgz
+    version: 0.1.2
   main:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-08-09T13:21:23.990456239Z"
+    description: A Helm chart for Kubernetes
+    digest: ea223abb6d4c7cbc8a976f144e91b08ba69424cd1523748e49ac13f9c023cf29
+    maintainers:
+    - name: zavertiaev
+    - name: mikolajsobolewski
+    name: main
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/main-0.2.2/main-0.2.2.tgz
+    version: 0.2.2
   - apiVersion: v2
     appVersion: latest
     created: "2024-08-02T22:33:42.82864786Z"
@@ -40,4 +66,4 @@ entries:
     urls:
     - https://eq-lab.github.io/helm-charts/main-0.1.1.tgz
     version: 0.1.1
-generated: "2024-08-02T22:33:42.82876319Z"
+generated: "2024-08-09T13:21:23.990498407Z"
