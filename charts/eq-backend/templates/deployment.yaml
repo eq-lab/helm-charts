@@ -45,7 +45,7 @@ spec:
           {{- end }}
           {{- if .Values.migrations.cmd }}
           command: ["/bin/sh", "-c"]
-          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .cmd }}"]
+          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .cmd }}"]
           {{- end }}
         {{- end }}
           resources:
@@ -76,7 +76,7 @@ spec:
           {{- end }}
           {{- if .Values.containers.main.cmd }}
           command: ["/bin/sh", "-c"]
-          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .Values.containers.main.cmd }}"]
+          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.main.cmd }}"]
           {{- end }}
         {{- end }}
           resources:
@@ -102,7 +102,7 @@ spec:
           {{- end }}
           {{- if .Values.containers.sidecar.cmd }}
           command: ["/bin/sh", "-c"]
-          args: ["eval $(cat /mnt/secrets/* | sed 's/^/export /') && {{ .Values.containers.sidecar.cmd }}"]
+          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.sidecar.cmd }}"]
           {{- end }}
         {{- end }}
           resources:
@@ -124,11 +124,11 @@ spec:
         {{- end }}
         {{- end }}
         {{- if .Values.secretManager.enabled }}
-        - name: secrets
-          csi:
+        - csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
               secretProviderClass: {{ include "eq-backend.fullname" . }}
+          name: secrets
         {{- end }}
       {{- end }}
