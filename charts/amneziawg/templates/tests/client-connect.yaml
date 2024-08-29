@@ -63,13 +63,12 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
-          command: 
+          command:
             - /bin/sh
           args:
             - -c
             - |
                 set -e
-                
                 cat <<EOF > /tmp/wg0.conf
                 [Interface]
                 PrivateKey = ${WG_PRIVATE_KEY}
