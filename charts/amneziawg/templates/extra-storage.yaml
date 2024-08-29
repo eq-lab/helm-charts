@@ -10,7 +10,7 @@ metadata:
     "helm.sh/resource-policy": keep
 spec:
   {{- if .storageClassName }}
-  storageClassName: {{ .storageClassName }} 
+  storageClassName: {{ .storageClassName }}
   {{- end }}
   {{- if .volumeName }}
   volumeName: {{ .volumeName }}

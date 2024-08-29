@@ -15,9 +15,9 @@ spec:
         - name: sysctls
           image: busybox:stable
           command:
-          - sh
-          - -c
-          - sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.forwarding=1
+            - sh
+            - -c
+            - sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.forwarding=1
           securityContext:
             runAsNonRoot: false
             privileged: true
@@ -92,7 +92,7 @@ spec:
       volumes:
         - name: wireguard-server-secret
           secret:
-            secretName: {{ .Release.Name }}-wg-generated
+            secretName: "{{ .Release.Name }}-wg-generated"
         - name: tmp-volume
           emptyDir: {}
       restartPolicy: Never

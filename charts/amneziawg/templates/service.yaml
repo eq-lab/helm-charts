@@ -1,4 +1,4 @@
-{{- if .Values.service.enabled }}
+{{- if (.Values.service.enabled) }}
 kind: Service
 apiVersion: v1
 metadata:
