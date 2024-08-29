@@ -1,4 +1,4 @@
-{{- if and .Values.healthSideCar.enabled  .Values.healthSideCar.service.enabled }}
+{{- if and (.Values.healthSideCar.enabled) (.Values.healthSideCar.service.enabled) }}
 kind: Service
 apiVersion: v1
 metadata:
