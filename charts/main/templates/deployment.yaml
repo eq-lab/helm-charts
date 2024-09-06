@@ -37,7 +37,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}/{{ .Values.image.name | default (printf "%s" (include "main.fullname" .)) }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.secretManager.cmd }}
           command: ["/bin/sh", "-c"]
