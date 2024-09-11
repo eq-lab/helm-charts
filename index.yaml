@@ -29,6 +29,19 @@ entries:
   main:
   - apiVersion: v2
     appVersion: latest
+    created: "2024-09-11T11:52:54.858899183Z"
+    description: A Helm chart for Kubernetes
+    digest: 518dfa9af7ac35c9cc00e2ce34a8cfa65e79c23db01b592a238b6e4ac1f884bf
+    maintainers:
+    - name: zavertiaev
+    - name: mikolajsobolewski
+    name: main
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/main-0.3.2/main-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-09-07T20:23:19.400135769Z"
     description: A Helm chart for Kubernetes
     digest: 28ca08c905b9c41b0bb17372a56881333da56429b82a97e049005a01f81972e2
@@ -105,4 +118,4 @@ entries:
     urls:
     - https://eq-lab.github.io/helm-charts/main-0.1.1.tgz
     version: 0.1.1
-generated: "2024-09-07T20:23:19.400158251Z"
+generated: "2024-09-11T11:52:54.858970116Z"
