@@ -56,6 +56,9 @@ secretManager:
     annotations: {}
   spec: {}
 
+networkPolicy:
+  enabled: true
+
 podAnnotations: {}
 podLabels: {}
 
