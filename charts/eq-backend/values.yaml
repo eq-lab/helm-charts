@@ -60,6 +60,10 @@ podSecurityContext:
   runAsUser: 1654
   runAsGroup: 1654
   runAsNonRoot: true
+
+networkPolicy:
+  enabled: true
+
 podAnnotations: {}
 podLabels: {}
 

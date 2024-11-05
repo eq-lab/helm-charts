@@ -5,8 +5,6 @@
 replicaCount: 1
 
 image:
-  # -- default container image repository
-  repository: ghcr.io/eq-lab
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   name: ""
@@ -34,6 +32,7 @@ secretManager:
   enabled: false
   serviceAccount:
     name: ""
+    create: false
   secrets: []
   cmd: ""
 
@@ -79,6 +78,7 @@ tolerations: []
 affinity: {}
 
 env: {}
+envFrom: {}
 
 volumeMounts: []
 volumes: []
