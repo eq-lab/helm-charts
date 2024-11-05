@@ -13,8 +13,8 @@ migrations:
       cpu: "0.25"
       memory: 500Mi
 containers:
-  main:
-    name: backend
+  api:
+    name: api
     image:
       repository: ghcr.io/eq-lab/warden-yield/presentation
       tag: latest
@@ -26,8 +26,8 @@ containers:
       requests:
         cpu: "1"
         memory: 2Gi
-  sidecar:
-    name: sidecar
+  services:
+    name: services
     image:
       repository: ghcr.io/eq-lab/warden-yield/services
       tag: latest
@@ -55,7 +55,11 @@ secretManager:
     name: ""
     annotations: {}
   spec: {}
-
+podSecurityContext:
+  fsGroup: 1654
+  runAsUser: 1654
+  runAsGroup: 1654
+  runAsNonRoot: true
 podAnnotations: {}
 podLabels: {}
 

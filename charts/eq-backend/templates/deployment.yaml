@@ -25,6 +25,8 @@ spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if .Values.secretManager.enabled }}
       serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
       {{- end }}
@@ -57,13 +59,13 @@ spec:
               memory: {{ .Values.migrations.resources.requests.memory }}
       {{- end }}
       containers:
-        - name: {{ .Values.containers.main.name }}
-          {{- if .Values.containers.main.securityContext }}
+        - name: {{ .Values.containers.api.name }}
+          {{- if .Values.containers.api.securityContext }}
           securityContext:
-            {{- toYaml .Values.containers.main.securityContext | nindent 12 }}
+            {{- toYaml .Values.containers.api.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.containers.main.image.repository }}:{{ .Values.containers.main.image.tag }}"
-          imagePullPolicy: {{ .Values.containers.main.image.pullPolicy }}
+          image: "{{ .Values.containers.api.image.repository }}:{{ .Values.containers.api.image.tag }}"
+          imagePullPolicy: {{ .Values.containers.api.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
               protocol: TCP
@@ -74,25 +76,25 @@ spec:
               mountPath: "/etc/env"
               readOnly: true
           {{- end }}
-          {{- if .Values.containers.main.cmd }}
+          {{- if .Values.containers.api.cmd }}
           command: ["/bin/sh", "-c"]
-          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.main.cmd }}"]
+          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.api.cmd }}"]
           {{- end }}
         {{- end }}
           resources:
             limits:
-              cpu: {{ .Values.containers.main.resources.limits.cpu }}
-              memory: {{ .Values.containers.main.resources.limits.memory }}
+              cpu: {{ .Values.containers.api.resources.limits.cpu }}
+              memory: {{ .Values.containers.api.resources.limits.memory }}
             requests:
-              cpu: {{ .Values.containers.main.resources.requests.cpu }}
-              memory: {{ .Values.containers.main.resources.requests.memory }}
-        - name: {{ .Values.containers.sidecar.name }}
-          {{- if .Values.containers.sidecar.securityContext }}
+              cpu: {{ .Values.containers.api.resources.requests.cpu }}
+              memory: {{ .Values.containers.api.resources.requests.memory }}
+        - name: {{ .Values.containers.services.name }}
+          {{- if .Values.containers.services.securityContext }}
           securityContext:
-            {{- toYaml .Values.containers.sidecar.securityContext | nindent 12 }}
+            {{- toYaml .Values.containers.services.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.containers.sidecar.image.repository }}:{{ .Values.containers.sidecar.image.tag }}"
-          imagePullPolicy: {{ .Values.containers.sidecar.image.pullPolicy }}
+          image: "{{ .Values.containers.services.image.repository }}:{{ .Values.containers.services.image.tag }}"
+          imagePullPolicy: {{ .Values.containers.services.image.pullPolicy }}
         {{- if .Values.secretManager.enabled }}
           {{- if .Values.secretManager.mount }}
           volumeMounts:
@@ -100,18 +102,18 @@ spec:
               mountPath: "/etc/env"
               readOnly: true
           {{- end }}
-          {{- if .Values.containers.sidecar.cmd }}
+          {{- if .Values.containers.services.cmd }}
           command: ["/bin/sh", "-c"]
-          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.sidecar.cmd }}"]
+          args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.containers.services.cmd }}"]
           {{- end }}
         {{- end }}
           resources:
             limits:
-              cpu: {{ .Values.containers.sidecar.resources.limits.cpu }}
-              memory: {{ .Values.containers.sidecar.resources.limits.memory }}
+              cpu: {{ .Values.containers.services.resources.limits.cpu }}
+              memory: {{ .Values.containers.services.resources.limits.memory }}
             requests:
-              cpu: {{ .Values.containers.sidecar.resources.requests.cpu }}
-              memory: {{ .Values.containers.sidecar.resources.requests.memory }}
+              cpu: {{ .Values.containers.services.resources.requests.cpu }}
+              memory: {{ .Values.containers.services.resources.requests.memory }}
       {{- if or .Values.volumes .Values.secretManager.enabled }}
       volumes:
         {{- if .Values.volumes }}
