@@ -1,0 +1,16 @@
+{{- if and .Values.probe.enabled .Values.ingress.enabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMProbe
+metadata:
+  name: {{ include "main.fullname" . }}
+spec:
+  vmProberSpec:
+    url: {{ .Values.probe.url }}
+  module: {{ .Values.probe.module }}
+  targets:
+    ingress:
+      selector:
+        matchLabels:
+          {{- include "main.labels" . | nindent 10 }}
+  interval: {{ .Values.probe.interval }}
+{{- end }}
