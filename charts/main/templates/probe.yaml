@@ -1,4 +1,4 @@
-{{- if .Values.probe.enabled }}
+{{- if .Values.probe.enabled -}}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMProbe
 metadata:
