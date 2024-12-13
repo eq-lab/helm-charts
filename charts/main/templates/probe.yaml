@@ -7,14 +7,14 @@ spec:
   vmProberSpec:
     url: {{ .Values.probe.url }}
   module: {{ .Values.probe.module }}
-  {{- if .Values.probe.staticConfig }}
+  {{- if .Values.probe.targets }}
   probe:
-    staticConfig:
+    targets:
       targets:
-      {{- range .Values.probe.staticConfig }}
+      {{- range .Values.probe.targets }}
         - {{ . }}
       {{- end }}
-{{- else if and (not .Values.probe.staticConfig) .Values.ingress.enabled }}
+{{- else if and (not .Values.probe.targets) .Values.ingress.enabled }}
   targets:
     ingress:
       selector:
