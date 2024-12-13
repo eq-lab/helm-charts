@@ -8,13 +8,13 @@ spec:
     url: {{ .Values.probe.url }}
   module: {{ .Values.probe.module }}
   {{- if .Values.probe.targets }}
-  probe:
+  targets:
     staticConfig:
       targets:
       {{- range .Values.probe.targets }}
         - {{ . }}
       {{- end }}
-{{- else if and (not .Values.probe.targets) .Values.ingress.enabled }}
+  {{- else if and (not .Values.probe.targets) .Values.ingress.enabled }}
   targets:
     ingress:
       selector:
