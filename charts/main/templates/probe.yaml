@@ -9,7 +9,7 @@ spec:
   module: {{ .Values.probe.module }}
   {{- if .Values.probe.targets }}
   probe:
-    targets:
+    staticConfig:
       targets:
       {{- range .Values.probe.targets }}
         - {{ . }}
