@@ -1,4 +1,4 @@
-{{- if and .Values.probe.enabled .Values.ingress.enabled }}
+{{- if .Values.probe.enabled }}
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMProbe
 metadata:
@@ -7,10 +7,19 @@ spec:
   vmProberSpec:
     url: {{ .Values.probe.url }}
   module: {{ .Values.probe.module }}
+  {{- if .Values.probe.staticConfig }}
+  probe:
+    staticConfig:
+      targets:
+      {{- range .Values.probe.staticConfig }}
+        - {{ . }}
+      {{- end }}
+{{- else if and (not .Values.probe.staticConfig) .Values.ingress.enabled }}
   targets:
     ingress:
       selector:
         matchLabels:
           {{- include "main.labels" . | nindent 10 }}
+  {{- end }}
   interval: {{ .Values.probe.interval }}
 {{- end }}

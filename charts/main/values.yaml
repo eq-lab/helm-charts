@@ -54,6 +54,8 @@ ingress:
 
 probe:
   enabled: false
+  # -- List of targets
+  staticConfig:
   url: blackbox-exporter.monitoring.svc:9115
   module: http_2xx
   interval: 30s
