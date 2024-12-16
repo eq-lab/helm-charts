@@ -3,6 +3,18 @@ entries:
   amneziawg:
   - apiVersion: v2
     appVersion: 0.0.0
+    created: "2024-12-16T09:38:36.958832087Z"
+    description: A Helm chart for managing a amnezia-wg vpn in kubernetes
+    digest: 7cd357d7d338fb72de45fa78586c472d4f4a438d2aef4ffb7063b112c14eba24
+    maintainers:
+    - name: mikolajsobolewski
+    name: amneziawg
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/amneziawg-0.2.1/amneziawg-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 0.0.0
     created: "2024-10-24T15:04:27.416050036Z"
     description: A Helm chart for managing a amnezia-wg vpn in kubernetes
     digest: 65f266230c5f85cf7ce159dbd8ec5cfa7f8d6dc790a48ba9c01526e8bd1a12e6
@@ -26,6 +38,18 @@ entries:
     - https://github.com/eq-lab/helm-charts/releases/download/amneziawg-0.1.0/amneziawg-0.1.0.tgz
     version: 0.1.0
   eq-backend:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-12-16T09:38:37.141840448Z"
+    description: A Helm chart for Kubernetes
+    digest: 53d67bf5dc2e168748cbdbe9cdb76924e6d7522c72b98d5083ec3a13c192b642
+    maintainers:
+    - name: mikolajsobolewski
+    name: eq-backend
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/eq-backend-0.3.2/eq-backend-0.3.2.tgz
+    version: 0.3.2
   - apiVersion: v2
     appVersion: latest
     created: "2024-11-06T09:38:07.839534437Z"
@@ -75,6 +99,19 @@ entries:
     - https://github.com/eq-lab/helm-charts/releases/download/eq-backend-0.1.2/eq-backend-0.1.2.tgz
     version: 0.1.2
   main:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-12-16T09:38:37.279161181Z"
+    description: A Helm chart for Kubernetes
+    digest: 9271830cf4e37bfecd260ab5d4c5765c97b7744f7ecc9bbc97edb444b38fc96c
+    maintainers:
+    - name: zavertiaev
+    - name: mikolajsobolewski
+    name: main
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/main-0.5.4/main-0.5.4.tgz
+    version: 0.5.4
   - apiVersion: v2
     appVersion: latest
     created: "2024-12-09T14:29:36.595356763Z"
@@ -179,4 +216,4 @@ entries:
     urls:
     - https://eq-lab.github.io/helm-charts/main-0.1.1.tgz
     version: 0.1.1
-generated: "2024-12-09T14:29:36.595406406Z"
+generated: "2024-12-16T09:38:37.279224831Z"
