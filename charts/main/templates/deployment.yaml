@@ -5,6 +5,10 @@ metadata:
   labels:
     {{- include "main.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.strategy }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
