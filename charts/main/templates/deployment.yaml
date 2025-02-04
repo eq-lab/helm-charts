@@ -76,6 +76,22 @@ spec:
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- if eq .Values.readinessProbe.type "http" }}
+            httpGet:
+              path: {{ .Values.readinessProbe.path | default "/" | quote }}
+              port: {{ .Values.readinessProbe.port | default (or .Values.service.targetport .Values.service.port) }}
+            {{- else if eq .Values.readinessProbe.type "tcp" }}
+            tcpSocket:
+              port: {{ .Values.readinessProbe.port | default (or .Values.service.targetport .Values.service.port) }}
+            {{- end }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 10 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 1 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 5 }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold | default 1 }}
+          {{- end }}
           {{- if or .Values.volumeMounts .Values.secretManager.enabled  }}
           volumeMounts:
             {{- if .Values.volumeMounts }}
