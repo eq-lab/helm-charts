@@ -43,6 +43,72 @@ spec:
           {{- end }}
           image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- if eq .Values.readinessProbe.type "http" }}
+            httpGet:
+              path: {{ .Values.readinessProbe.path | quote }}
+              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.readinessProbe.type "tcp" }}
+            tcpSocket:
+              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.readinessProbe.type "exec" }}
+            exec:
+              command:
+                {{- range .Values.readinessProbe.command }}
+                - {{ . | quote }}
+                {{- end }}
+            {{- end }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- if eq .Values.livenessProbe.type "http" }}
+            httpGet:
+              path: {{ .Values.livenessProbe.path |  quote }}
+              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.livenessProbe.type "tcp" }}
+            tcpSocket:
+              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.livenessProbe.type "exec" }}
+            exec:
+              command:
+                {{- range .Values.livenessProbe.command }}
+                - {{ . | quote }}
+                {{- end }}
+            {{- end }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- if eq .Values.startupProbe.type "http" }}
+            httpGet:
+              path: {{ .Values.startupProbe.path |  quote }}
+              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.startupProbe.type "tcp" }}
+            tcpSocket:
+              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+            {{- else if eq .Values.startupProbe.type "exec" }}
+            exec:
+              command:
+                {{- range .Values.startupProbe.command }}
+                - {{ . | quote }}
+                {{- end }}
+            {{- end }}
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+          {{- end }}
           {{- if .Values.secretManager.cmd }}
           command: ["/bin/sh", "-c"]
           args: ["eval $(cat /etc/env/* | sed 's/^/export /') && {{ .Values.secretManager.cmd }}"]
@@ -68,29 +134,13 @@ spec:
           {{- if .Values.env }}
           env:
           {{- range $key, $value := .Values.env }}
-            - name: {{ $key }}
+            - name: {{ $key | quote }}
               value: {{ $value | quote }}
           {{- end }}
           {{- end }}
           {{- with .Values.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- if .Values.readinessProbe.enabled }}
-          readinessProbe:
-            {{- if eq .Values.readinessProbe.type "http" }}
-            httpGet:
-              path: {{ .Values.readinessProbe.path | default "/" | quote }}
-              port: {{ .Values.readinessProbe.port | default (or .Values.service.targetport .Values.service.port) }}
-            {{- else if eq .Values.readinessProbe.type "tcp" }}
-            tcpSocket:
-              port: {{ .Values.readinessProbe.port | default (or .Values.service.targetport .Values.service.port) }}
-            {{- end }}
-            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 10 }}
-            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 10 }}
-            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 1 }}
-            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 5 }}
-            successThreshold: {{ .Values.readinessProbe.successThreshold | default 1 }}
           {{- end }}
           {{- if or .Values.volumeMounts .Values.secretManager.enabled  }}
           volumeMounts:
