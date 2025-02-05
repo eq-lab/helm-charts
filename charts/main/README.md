@@ -1,6 +1,6 @@
 # main
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -34,6 +34,13 @@ A Helm chart for Kubernetes
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
+| livenessProbe.enabled | bool | `false` |  |
+| livenessProbe.failureThreshold | int | `5` |  |
+| livenessProbe.initialDelaySeconds | int | `5` |  |
+| livenessProbe.path | string | `"/"` |  |
+| livenessProbe.periodSeconds | int | `3` |  |
+| livenessProbe.successThreshold | int | `1` |  |
+| livenessProbe.timeoutSeconds | int | `1` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
@@ -44,6 +51,12 @@ A Helm chart for Kubernetes
 | probe.targets | string | `nil` | List of targets |
 | probe.url | string | `"blackbox-exporter.monitoring.svc:9115"` |  |
 | readinessProbe.enabled | bool | `false` |  |
+| readinessProbe.failureThreshold | int | `5` |  |
+| readinessProbe.initialDelaySeconds | int | `10` |  |
+| readinessProbe.path | string | `"/"` |  |
+| readinessProbe.periodSeconds | int | `5` |  |
+| readinessProbe.successThreshold | int | `1` |  |
+| readinessProbe.timeoutSeconds | int | `1` |  |
 | replicaCount | int | `1` |  |
 | resources.limits.cpu | string | `"200m"` |  |
 | resources.limits.memory | string | `"256Mi"` |  |
@@ -58,6 +71,13 @@ A Helm chart for Kubernetes
 | service.enabled | bool | `false` |  |
 | service.ports | list | `[]` |  |
 | service.type | string | `"ClusterIP"` |  |
+| startupProbe.enabled | bool | `false` |  |
+| startupProbe.failureThreshold | int | `5` |  |
+| startupProbe.initialDelaySeconds | int | `5` |  |
+| startupProbe.path | string | `"/"` |  |
+| startupProbe.periodSeconds | int | `3` |  |
+| startupProbe.successThreshold | int | `1` |  |
+| startupProbe.timeoutSeconds | int | `1` |  |
 | strategy | string | `nil` | Set details for deployment strategy |
 | tolerations | list | `[]` |  |
 | volumeMounts | list | `[]` |  |

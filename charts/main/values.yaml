@@ -20,9 +20,6 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
-readinessProbe:
-  enabled: false
-
 podSecurityContext: {}
   # fsGroup: 2000
 
@@ -84,6 +81,33 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
+
+readinessProbe:
+  enabled: false
+  path: /
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 5
+  successThreshold: 1
+
+livenessProbe:
+  enabled: false
+  path: /
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  timeoutSeconds: 1
+  failureThreshold: 5
+  successThreshold: 1
+
+startupProbe:
+  enabled: false
+  path: /
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  timeoutSeconds: 1
+  failureThreshold: 5
+  successThreshold: 1
 
 nodeSelector: {}
 
