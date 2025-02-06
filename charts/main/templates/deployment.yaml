@@ -47,11 +47,11 @@ spec:
           readinessProbe:
             {{- if eq .Values.readinessProbe.type "http" }}
             httpGet:
-              path: {{ .Values.readinessProbe.path | quote }}
-              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              path: {{ .Values.readinessProbe.path }}
+              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port)  }}
             {{- else if eq .Values.readinessProbe.type "tcp" }}
             tcpSocket:
-              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              port: {{ .Values.readinessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port)  }}
             {{- else if eq .Values.readinessProbe.type "exec" }}
             exec:
               command:
@@ -69,11 +69,11 @@ spec:
           livenessProbe:
             {{- if eq .Values.livenessProbe.type "http" }}
             httpGet:
-              path: {{ .Values.livenessProbe.path |  quote }}
-              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) }}
             {{- else if eq .Values.livenessProbe.type "tcp" }}
             tcpSocket:
-              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              port: {{ .Values.livenessProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) }}
             {{- else if eq .Values.livenessProbe.type "exec" }}
             exec:
               command:
@@ -91,11 +91,11 @@ spec:
           startupProbe:
             {{- if eq .Values.startupProbe.type "http" }}
             httpGet:
-              path: {{ .Values.startupProbe.path |  quote }}
-              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              path: {{ .Values.startupProbe.path }}
+              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) }}
             {{- else if eq .Values.startupProbe.type "tcp" }}
             tcpSocket:
-              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) | quote }}
+              port: {{ .Values.startupProbe.port | default (or (first .Values.service.ports).targetPort (first .Values.service.ports).port .Values.service.targetport .Values.service.port) }}
             {{- else if eq .Values.startupProbe.type "exec" }}
             exec:
               command:
