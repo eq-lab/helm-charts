@@ -33,7 +33,7 @@ spec:
             {{- end }}
           {{- end }}
           envFrom:
-            - secretRef: 
+            - secretRef:
                 name: {{ .Values.db.secretName }}
       {{- if .Values.waitForDb.enabled }}
       initContainers:
