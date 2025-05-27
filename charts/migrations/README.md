@@ -16,6 +16,7 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | cmd | string | `"/app/Migrations migrate"` |  |
 | db.host | string | `""` |  |
+| db.maxAttempts | int | `30` |  |
 | db.port | string | `""` |  |
 | db.secretName | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -26,6 +27,11 @@ A Helm chart for Kubernetes
 | job.annotations."helm.sh/hook-weight" | string | `"0"` |  |
 | job.backoffLimit | int | `1` |  |
 | job.ttlSecondsAfterFinished | int | `3600` |  |
+| podSecurityContext | object | `{}` |  |
+| resources.limits.cpu | string | `"200m"` |  |
+| resources.limits.memory | string | `"256Mi"` |  |
+| resources.requests.cpu | string | `"20m"` |  |
+| resources.requests.memory | string | `"64Mi"` |  |
 | waitForDb.enabled | bool | `false` |  |
 | waitForDb.image | string | `"busybox"` |  |
 

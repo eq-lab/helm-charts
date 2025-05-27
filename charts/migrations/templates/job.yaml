@@ -18,6 +18,10 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
       containers:
         - name: migrator
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -32,6 +36,8 @@ spec:
             {{- toYaml .Values.cmd | nindent 12 }}
             {{- end }}
           {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           envFrom:
             - secretRef:
                 name: {{ .Values.db.secretName }}
@@ -44,10 +50,20 @@ spec:
             - 'sh'
             - '-c'
             - |
+              attempts=0
+              max_attempts={{ .Values.db.maxAttempts | default 30 }}
               until nc -z {{ .Values.db.host }} {{ .Values.db.port }}; do
-                echo "Waiting for DB..."
-                sleep 2
+                attempts=$((attempts+1))
+                if [ $attempts -ge $max_attempts ]; then
+                  echo "Failed to connect to DB after $max_attempts attempts. Aborting."
+                  exit 1
+                fi
+                echo "Waiting for DB... (attempt $attempts/$max_attempts)"
+                sleep 10
               done
+              echo "DB connection established!"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
       {{- end }}
   # Automatically remove finished Jobs after a period
   ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
