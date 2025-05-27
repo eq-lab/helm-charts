@@ -39,6 +39,7 @@ spec:
       initContainers:
         - name: wait-for-db
           image: {{ .Values.waitForDb.image }}
+          imagePullPolicy: {{ .Values.waitForDb.pullPolicy }}
           command:
             - 'sh'
             - '-c'
@@ -48,3 +49,5 @@ spec:
                 sleep 2
               done
       {{- end }}
+  # Automatically remove finished Jobs after a period
+  ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
