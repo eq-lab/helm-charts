@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "migrations.fullname" . }}
+  labels:
+    {{- include "migrations.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.job.annotations | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.job.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        {{- include "migrations.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: migrator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.cmd }}
+          command:
+            {{- if kindIs "string" .Values.cmd }}
+            - "sh"
+            - "-c"
+            - "{{ .Values.cmd }}"
+            {{- else }}
+            {{- toYaml .Values.cmd | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          envFrom:
+            - secretRef: 
+                name: {{ .Values.db.secretName }}
+      {{- if .Values.waitForDb.enabled }}
+      initContainers:
+        - name: wait-for-db
+          image: {{ .Values.waitForDb.image }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z {{ .Values.db.host }} {{ .Values.db.port }}; do
+                echo "Waiting for DB..."
+                sleep 2
+              done
+      {{- end }}
