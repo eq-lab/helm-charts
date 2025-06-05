@@ -24,7 +24,7 @@ spec:
       {{- end }}
       containers:
         - name: migrator
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.cmd }}
           command:

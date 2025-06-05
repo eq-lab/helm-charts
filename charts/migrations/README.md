@@ -1,6 +1,6 @@
 # migrations
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -19,8 +19,8 @@ A Helm chart for Kubernetes
 | db.maxAttempts | int | `30` |  |
 | db.port | string | `""` |  |
 | db.secretName | string | `""` |  |
+| image.name | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `""` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
 | job.annotations."helm.sh/hook" | string | `"pre-install,pre-upgrade"` |  |
