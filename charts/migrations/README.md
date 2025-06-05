@@ -1,6 +1,6 @@
 # migrations
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -23,8 +23,6 @@ A Helm chart for Kubernetes
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| job.annotations."helm.sh/hook" | string | `"pre-install,pre-upgrade"` |  |
-| job.annotations."helm.sh/hook-weight" | string | `"0"` |  |
 | job.backoffLimit | int | `1` |  |
 | job.ttlSecondsAfterFinished | int | `3600` |  |
 | podSecurityContext | object | `{}` |  |
