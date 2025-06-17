@@ -7,10 +7,14 @@ metadata:
   annotations:
     {{- toYaml .Values.job.annotations | nindent 4 }}
 spec:
+  selector:
+    matchLabels:
+      job-name: {{ include "migrations.fullname" . }}
   backoffLimit: {{ .Values.job.backoffLimit }}
   template:
     metadata:
       labels:
+        job-name: {{ include "migrations.fullname" . }}
         {{- include "migrations.selectorLabels" . | nindent 8 }}
     spec:
       restartPolicy: Never
