@@ -23,8 +23,6 @@ A Helm chart for Kubernetes
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| job.annotations."helm.sh/hook" | string | `"pre-install,pre-upgrade"` |  |
-| job.annotations."helm.sh/hook-weight" | string | `"0"` |  |
 | job.backoffLimit | int | `1` |  |
 | job.failedJobsHistoryLimit | int | `2` |  |
 | job.successfulJobsHistoryLimit | int | `3` |  |
