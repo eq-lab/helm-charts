@@ -282,6 +282,18 @@ entries:
   migrations:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-06-17T14:02:55.457756905Z"
+    description: A Helm chart for Kubernetes
+    digest: 27de516e6ae11a6bd0f144b3df55221082b6db2c71cbd5b22f4a74e5f0ed7e0d
+    maintainers:
+    - name: mikolajsobolewski
+    name: migrations
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/migrations-0.2.2/migrations-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-06-05T14:58:10.931869529Z"
     description: A Helm chart for Kubernetes
     digest: 1700bcb872332163537b2057fb766afe04815ad60f22c36aaeb3efdb4ed1e233
@@ -316,4 +328,4 @@ entries:
     urls:
     - https://github.com/eq-lab/helm-charts/releases/download/migrations-0.1.1/migrations-0.1.1.tgz
     version: 0.1.1
-generated: "2025-06-05T14:58:10.931925173Z"
+generated: "2025-06-17T14:02:55.457826064Z"
