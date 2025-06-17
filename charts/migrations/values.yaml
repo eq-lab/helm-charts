@@ -8,7 +8,8 @@ cmd: "/app/Migrations migrate"
 
 job:
   backoffLimit: 1
-  ttlSecondsAfterFinished: 3600
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
 waitForDb:
   enabled: false
   image: busybox

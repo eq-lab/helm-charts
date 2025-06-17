@@ -8,6 +8,8 @@ metadata:
     {{- toYaml .Values.job.annotations | nindent 4 }}
 spec:
   backoffLimit: {{ .Values.job.backoffLimit }}
+  successfulJobsHistoryLimit: {{ .Values.job.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ .Values.job.failedJobsHistoryLimit | default 1 }}
   template:
     metadata:
       labels:
@@ -65,5 +67,3 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- end }}
-  # Automatically remove finished Jobs after a period
-  ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
