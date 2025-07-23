@@ -1,6 +1,6 @@
 # main
 
-![Version: 0.6.2](https://img.shields.io/badge/Version-0.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.6.3](https://img.shields.io/badge/Version-0.6.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -31,8 +31,10 @@ A Helm chart for Kubernetes
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `""` |  |
+| ingress.hosts[0].paths[0].name | string | `""` | Custom serviceName |
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
+| ingress.hosts[0].paths[0].port | string | `""` | Custom servicePort |
 | ingress.tls | list | `[]` |  |
 | livenessProbe.enabled | bool | `false` |  |
 | livenessProbe.failureThreshold | int | `5` |  |
