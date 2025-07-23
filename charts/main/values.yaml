@@ -53,6 +53,10 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
+# -- Custom serviceName
+          serviceName: ""
+# -- Custom port
+          port:
   tls: []
 
 probe:

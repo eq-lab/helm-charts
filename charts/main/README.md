@@ -33,6 +33,8 @@ A Helm chart for Kubernetes
 | ingress.hosts[0].host | string | `""` |  |
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
+| ingress.hosts[0].paths[0].port | string | `nil` | Custom port |
+| ingress.hosts[0].paths[0].serviceName | string | `""` | Custom serviceName |
 | ingress.tls | list | `[]` |  |
 | livenessProbe.enabled | bool | `false` |  |
 | livenessProbe.failureThreshold | int | `5` |  |
