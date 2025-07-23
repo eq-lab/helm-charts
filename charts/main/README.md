@@ -31,10 +31,10 @@ A Helm chart for Kubernetes
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `""` |  |
+| ingress.hosts[0].paths[0].name | string | `""` | Custom serviceName |
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
-| ingress.hosts[0].paths[0].port | string | `nil` | Custom port |
-| ingress.hosts[0].paths[0].serviceName | string | `""` | Custom serviceName |
+| ingress.hosts[0].paths[0].port | string | `""` | Custom servicePort |
 | ingress.tls | list | `[]` |  |
 | livenessProbe.enabled | bool | `false` |  |
 | livenessProbe.failureThreshold | int | `5` |  |
