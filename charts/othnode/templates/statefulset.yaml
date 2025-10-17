@@ -31,12 +31,12 @@ spec:
       {{- end }}
       initContainers:
         - name: secret-copy-init
-          image: "stedolan/jq:latest"
+          image: "ghcr.io/jqlang/jq:1.8.1"
           command: ['sh', '-c']
           args:
             - |
               POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
-              SECRET_NAME="{{ (index .Values.secretManager.secrets 0).name }}"
+              SECRET_NAME="{{ if and .Values.secretManager.secrets (gt (len .Values.secretManager.secrets) 0) }}{{ (index .Values.secretManager.secrets 0).name }}{{ else }}aggregator-secrets{{ end }}"
               SECRET_FILE="/tmp/secrets/${SECRET_NAME}-${POD_INDEX}-env"
               mkdir -p /etc/env
               if [ -f "$SECRET_FILE" ]; then
