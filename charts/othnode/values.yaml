@@ -1,0 +1,111 @@
+# Number of replicas to deploy
+replicaCount: 1
+
+# Container image configuration
+image:
+  # Docker image repository
+  repository: ghcr.io/eq-lab/enjoyoors-avs/othentic-cli
+  # Image pull policy
+  pullPolicy: IfNotPresent 
+  # Image tag/version
+  tag: "v0.0.4"
+
+# Image pull secrets for private registries
+imagePullSecrets:
+  - name: github
+
+# Override the chart name
+nameOverride: ""
+# Override the full name of the chart
+fullnameOverride: ""
+
+# Pod annotations
+podAnnotations: {}
+# Pod security context
+podSecurityContext: {}
+# Container security context
+securityContext: {}
+
+# Service configuration
+service:
+  # Whether to create a main ClusterIP service
+  enabled: false
+  # Service type (ClusterIP, NodePort, LoadBalancer)
+  type: ClusterIP
+  # Service port for RPC
+  rpcPort: 8545
+  # Service port for P2P
+  p2pPort: 9876
+  # Service port for metrics
+  metricsPort: 6060
+
+# Othnode application configuration
+othnode:
+  # Data directory path
+  home: /data
+  # Whether to enable othnode
+  enabled: true
+  # Whether to enable RPC
+  rpc: true
+  # Whether to enable P2P
+  p2p: false
+  # Whether to enable metrics
+  metrics: true
+  # Application role
+  role: aggregator
+  # Whether to enable internal tasks
+  internalTasks: true
+  # Whether to use persistent storage
+  persistent: true
+  # L1 chain name
+  L1_CHAIN: ""
+  # L2 chain name
+  L2_CHAIN: ""
+  # Othentic bootstrap node ID
+  OTHENTIC_BOOTSTRAP_ID: ""
+  # AVS governance contract address
+  AVS_GOVERNANCE_ADDRESS: ""
+  # Attestation center contract address
+  ATTESTATION_CENTER_ADDRESS: ""
+  # Internal tasks configuration (JSON)
+  INTERNAL_TASKS: ""
+  # Health check probes
+  livenessProbe:
+    enabled: false
+    path: "/health"
+    port: 6060
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    enabled: false
+    path: "/ready"
+    port: 6060
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Storage configuration
+storage:
+  # Storage class name
+  storageClassName: default
+  # Storage size
+  size: 1Gi
+
+# Secret manager configuration
+secretManager:
+  # Whether to enable secret manager
+  enabled: true
+  # Service account configuration
+  serviceAccount:
+    # Service account name
+    name: "aggregator-sa"
+    # Whether to create service account
+    create: true
+  # Secrets configuration
+  secrets:
+    - name: "aggregator-secrets"
+      type: "Opaque"
+      path: "secrets/data/aggregator"

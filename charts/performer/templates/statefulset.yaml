@@ -1,0 +1,163 @@
+---
+{{- if .Values.performer.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "performer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "performer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "performer.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: secret-copy-init
+          image: "stedolan/jq:latest"
+          command: ['sh', '-c']
+          args:
+            - |
+              POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
+              SECRET_NAME="{{ (index .Values.secretManager.secrets 0).name }}"
+              SECRET_FILE="/tmp/secrets/${SECRET_NAME}-${POD_INDEX}-env"
+              mkdir -p /etc/env
+              if [ -f "$SECRET_FILE" ]; then
+                jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' "$SECRET_FILE" > "/etc/env/secrets"
+              fi
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: secrets
+              mountPath: /tmp/secrets
+              readOnly: true
+            - name: pod-secrets
+              mountPath: /etc/env
+      containers:
+        - name: {{ include "performer.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: /app
+          {{- if and .Values.livenessProbe .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path | default "/health" }}
+              port: {{ .Values.livenessProbe.port | default 3000 }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- if and .Values.readinessProbe .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path | default "/ready" }}
+              port: {{ .Values.readinessProbe.port | default 3000 }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- if .Values.performer.SCHEDULER_DELAY_MS }}
+            - name: SCHEDULER_DELAY_MS
+              value: {{ .Values.performer.SCHEDULER_DELAY_MS | quote }}
+            {{- end }}
+            {{- if .Values.performer.ATTESTATION_CENTER_ADDRESS }}
+            - name: ATTESTATION_CENTER_ADDRESS
+              value: {{ .Values.performer.ATTESTATION_CENTER_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.performer.TASK_DEFINITION_ID }}
+            - name: TASK_DEFINITION_ID
+              value: {{ .Values.performer.TASK_DEFINITION_ID | quote }}
+            {{- end }}
+            {{- if .Values.performer.MAX_MESSAGES_TO_VERIFY_PER_STEP }}
+            - name: MAX_MESSAGES_TO_VERIFY_PER_STEP
+              value: {{ .Values.performer.MAX_MESSAGES_TO_VERIFY_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.performer.STATE_FILE }}
+            - name: STATE_FILE
+              value: {{ .Values.performer.STATE_FILE | quote }}
+            {{- end }}
+            {{- if .Values.performer.EVENT_LISTENER_BLOCKS_PER_STEP }}
+            - name: EVENT_LISTENER_BLOCKS_PER_STEP
+              value: {{ .Values.performer.EVENT_LISTENER_BLOCKS_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.performer.EVENT_LISTENER_BLOCKS_DELAY }}
+            - name: EVENT_LISTENER_BLOCKS_DELAY
+              value: {{ .Values.performer.EVENT_LISTENER_BLOCKS_DELAY | quote }}
+            {{- end }}
+            {{- if .Values.performer.MAX_BLOCKS_TO_PROCESS_PER_STEP }}
+            - name: MAX_BLOCKS_TO_PROCESS_PER_STEP
+              value: {{ .Values.performer.MAX_BLOCKS_TO_PROCESS_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.performer.EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS }}
+            - name: EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS
+              value: {{ .Values.performer.EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS | quote }}
+            {{- end }}
+            {{- if .Values.performer.OTHENTIC_CLIENT_RPC_ADDRESS }}
+            - name: OTHENTIC_CLIENT_RPC_ADDRESS
+              value: {{ .Values.performer.OTHENTIC_CLIENT_RPC_ADDRESS | quote }}
+            {{- end }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              eval $(cat /etc/env/* | sed 's/^/export /')
+              exec node dist/index.js
+          volumeMounts:
+            - name: data
+              mountPath: "/data"
+            - name: pod-secrets
+              mountPath: "/etc/env"
+              readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "performer.fullname" . }}
+        - name: pod-secrets
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.storage.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.size }}
+{{- end }}

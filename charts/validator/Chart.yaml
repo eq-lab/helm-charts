@@ -1,0 +1,8 @@
+apiVersion: v2
+name: validator
+description: A Helm chart for validator
+type: application
+version: 0.0.1
+maintainers:
+  - name: "mikolajsobolewski"
+appVersion: "latest"
