@@ -1,0 +1,72 @@
+{{- if .Values.othnode.enabled }}
+# Service per pod
+{{- range $i := until (int .Values.replicaCount) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{ $i }}
+  labels:
+    {{- include "othnode.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: othnode-pod-{{ $i }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    {{- if $.Values.othnode.rpc }}
+    - port: 8545
+      protocol: TCP
+      name: rpc
+      targetPort: rpc
+    {{- end }}
+    {{- if $.Values.othnode.p2p }}
+    - port: 9876
+      protocol: TCP
+      name: p2p
+      targetPort: p2p
+    {{- end }}
+    {{- if $.Values.othnode.metrics }}
+    - port: 6060
+      protocol: TCP
+      name: metrics
+      targetPort: metrics
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ $.Release.Name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    statefulset.kubernetes.io/pod-name: {{ $.Release.Name }}-{{ $i }}
+{{- end }}
+
+{{- if .Values.service.enabled }}
+# Main ClusterIP service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "othnode.fullname" . }}
+  labels:
+    {{- include "othnode.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- if .Values.othnode.rpc }}
+    - port: {{ .Values.service.rpcPort }}
+      protocol: TCP
+      name: rpc
+      targetPort: rpc
+    {{- end }}
+    {{- if .Values.othnode.p2p }}
+    - port: {{ .Values.service.p2pPort }}
+      protocol: TCP
+      name: p2p
+      targetPort: p2p
+    {{- end }}
+    {{- if .Values.othnode.metrics }}
+    - port: {{ .Values.service.metricsPort }}
+      protocol: TCP
+      name: metrics
+      targetPort: metrics
+    {{- end }}
+  selector:
+    {{- include "othnode.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,148 @@
+---
+{{- if .Values.validator.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "validator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "validator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "validator.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: secret-copy-init
+          image: "stedolan/jq:latest"
+          command: ['sh', '-c']
+          args:
+            - |
+              POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
+              SECRET_NAME="{{ (index .Values.secretManager.secrets 0).name }}"
+              SECRET_FILE="/tmp/secrets/${SECRET_NAME}-${POD_INDEX}-env"
+              mkdir -p /etc/env
+              if [ -f "$SECRET_FILE" ]; then
+                jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' "$SECRET_FILE" > "/etc/env/secrets"
+              fi
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: secrets
+              mountPath: /tmp/secrets
+              readOnly: true
+            - name: pod-secrets
+              mountPath: /etc/env
+      containers:
+        - name: {{ include "validator.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: /app
+          ports:
+            - name: rpc
+              containerPort: {{ .Values.validator.APP_PORT | default 4002 }}
+              protocol: TCP
+          {{- if and .Values.livenessProbe .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path | default "/health" }}
+              port: {{ .Values.validator.APP_PORT | default 4002 }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- if and .Values.readinessProbe .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path | default "/ready" }}
+              port: {{ .Values.validator.APP_PORT | default 4002 }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- if .Values.validator.APP_PORT }}
+            - name: APP_PORT
+              value: {{ .Values.validator.APP_PORT | quote }}
+            {{- end }}
+            {{- if .Values.validator.L2_CHAIN_ID }}
+            - name: L2_CHAIN_ID
+              value: {{ .Values.validator.L2_CHAIN_ID | quote }}
+            {{- end }}
+            {{- if .Values.validator.L2_GATEWAY_CONTRACT_ADDRESS }}
+            - name: L2_GATEWAY_CONTRACT_ADDRESS
+              value: {{ .Values.validator.L2_GATEWAY_CONTRACT_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.validator.MAINNET_CHAIN_ID }}
+            - name: MAINNET_CHAIN_ID
+              value: {{ .Values.validator.MAINNET_CHAIN_ID | quote }}
+            {{- end }}
+            {{- if .Values.validator.MAINNET_GATEWAY_CONTRACT_ADDRESS }}
+            - name: MAINNET_GATEWAY_CONTRACT_ADDRESS
+              value: {{ .Values.validator.MAINNET_GATEWAY_CONTRACT_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.validator.TASK_DEFINITION_ID }}
+            - name: TASK_DEFINITION_ID
+              value: {{ .Values.validator.TASK_DEFINITION_ID | quote }}
+            {{- end }}
+            {{- if .Values.validator.VALIDATION_RETRY_LIMIT }}
+            - name: VALIDATION_RETRY_LIMIT
+              value: {{ .Values.validator.VALIDATION_RETRY_LIMIT | quote }}
+            {{- end }}
+            {{- if .Values.validator.MESSAGE_POOL_API_URL }}
+            - name: MESSAGE_POOL_API_URL
+              value: {{ .Values.validator.MESSAGE_POOL_API_URL | quote }}
+            {{- end }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              eval $(cat /etc/env/* | sed 's/^/export /')
+              exec node dist/server.js
+          volumeMounts:
+            - name: pod-secrets
+              mountPath: "/etc/env"
+              readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "validator.fullname" . }}
+        - name: pod-secrets
+          emptyDir: {}
+{{- end }}

@@ -1,0 +1,243 @@
+---
+{{- if .Values.othnode.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "othnode.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "othnode.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "othnode.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: secret-copy-init
+          image: "stedolan/jq:latest"
+          command: ['sh', '-c']
+          args:
+            - |
+              POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
+              SECRET_NAME="{{ (index .Values.secretManager.secrets 0).name }}"
+              SECRET_FILE="/tmp/secrets/${SECRET_NAME}-${POD_INDEX}-env"
+              mkdir -p /etc/env
+              if [ -f "$SECRET_FILE" ]; then
+                jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' "$SECRET_FILE" > "/etc/env/secrets"
+              fi
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: secrets
+              mountPath: /tmp/secrets
+              readOnly: true
+            - name: pod-secrets
+              mountPath: /etc/env
+      containers:
+        - name: {{ include "othnode.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if and .Values.othnode.livenessProbe .Values.othnode.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.othnode.livenessProbe.path | default "/health" }}
+              port: {{ .Values.othnode.livenessProbe.port | default "6060" }}
+            initialDelaySeconds: {{ .Values.othnode.livenessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.othnode.livenessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.othnode.livenessProbe.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.othnode.livenessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- if and .Values.othnode.readinessProbe .Values.othnode.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.othnode.readinessProbe.path | default "/ready" }}
+              port: {{ .Values.othnode.readinessProbe.port | default "6060" }}
+            initialDelaySeconds: {{ .Values.othnode.readinessProbe.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.othnode.readinessProbe.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.othnode.readinessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.othnode.readinessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          ports:
+            {{- if .Values.othnode.rpc }}
+            - name: rpc
+              containerPort: 8545
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.othnode.p2p }}
+            - name: p2p
+              containerPort: 9876
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.othnode.metrics }}
+            - name: metrics
+              containerPort: 6060
+              protocol: TCP
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_INDEX
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- if .Values.othnode.APP_PORT }}
+            - name: APP_PORT
+              value: {{ .Values.othnode.APP_PORT | quote }}
+            {{- end }}
+            {{- if .Values.othnode.ATTESTATION_CENTER_ADDRESS }}
+            - name: ATTESTATION_CENTER_ADDRESS
+              value: {{ .Values.othnode.ATTESTATION_CENTER_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.AVS_GOVERNANCE_ADDRESS }}
+            - name: AVS_GOVERNANCE_ADDRESS
+              value: {{ .Values.othnode.AVS_GOVERNANCE_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.EVENT_LISTENER_BLOCKS_DELAY }}
+            - name: EVENT_LISTENER_BLOCKS_DELAY
+              value: {{ .Values.othnode.EVENT_LISTENER_BLOCKS_DELAY | quote }}
+            {{- end }}
+            {{- if .Values.othnode.EVENT_LISTENER_BLOCKS_PER_STEP }}
+            - name: EVENT_LISTENER_BLOCKS_PER_STEP
+              value: {{ .Values.othnode.EVENT_LISTENER_BLOCKS_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.othnode.EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS }}
+            - name: EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS
+              value: {{ .Values.othnode.EVENT_LISTENER_DELAY_BETWEEN_STEPS_MS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.INTERNAL_TASKS }}
+            - name: INTERNAL_TASKS
+              value: {{ .Values.othnode.INTERNAL_TASKS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.L1_CHAIN }}
+            - name: L1_CHAIN
+              value: {{ .Values.othnode.L1_CHAIN | quote }}
+            {{- end }}
+            {{- if .Values.othnode.L2_CHAIN }}
+            - name: L2_CHAIN
+              value: {{ .Values.othnode.L2_CHAIN | quote }}
+            {{- end }}
+            {{- if .Values.othnode.L2_CHAIN_ID }}
+            - name: L2_CHAIN_ID
+              value: {{ .Values.othnode.L2_CHAIN_ID | quote }}
+            {{- end }}
+            {{- if .Values.othnode.L2_GATEWAY_CONTRACT_ADDRESS }}
+            - name: L2_GATEWAY_CONTRACT_ADDRESS
+              value: {{ .Values.othnode.L2_GATEWAY_CONTRACT_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.L2_NODE_RPC_URL }}
+            - name: L2_NODE_RPC_URL
+              value: {{ .Values.othnode.L2_NODE_RPC_URL | quote }}
+            {{- end }}
+
+            {{- if .Values.othnode.MAINNET_CHAIN_ID }}
+            - name: MAINNET_CHAIN_ID
+              value: {{ .Values.othnode.MAINNET_CHAIN_ID | quote }}
+            {{- end }}
+            {{- if .Values.othnode.MAINNET_GATEWAY_CONTRACT_ADDRESS }}
+            - name: MAINNET_GATEWAY_CONTRACT_ADDRESS
+              value: {{ .Values.othnode.MAINNET_GATEWAY_CONTRACT_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.MAX_BLOCKS_TO_PROCESS_PER_STEP }}
+            - name: MAX_BLOCKS_TO_PROCESS_PER_STEP
+              value: {{ .Values.othnode.MAX_BLOCKS_TO_PROCESS_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.othnode.MAX_MESSAGES_TO_VERIFY_PER_STEP }}
+            - name: MAX_MESSAGES_TO_VERIFY_PER_STEP
+              value: {{ .Values.othnode.MAX_MESSAGES_TO_VERIFY_PER_STEP | quote }}
+            {{- end }}
+            {{- if .Values.othnode.MESSAGE_POOL_API_URL }}
+            - name: MESSAGE_POOL_API_URL
+              value: {{ .Values.othnode.MESSAGE_POOL_API_URL | quote }}
+            {{- end }}
+            {{- if .Values.othnode.OTHENTIC_BOOTSTRAP_ID }}
+            - name: OTHENTIC_BOOTSTRAP_ID
+              value: {{ .Values.othnode.OTHENTIC_BOOTSTRAP_ID | quote }}
+            {{- end }}
+            {{- if .Values.othnode.OTHENTIC_CLIENT_RPC_ADDRESS }}
+            - name: OTHENTIC_CLIENT_RPC_ADDRESS
+              value: {{ .Values.othnode.OTHENTIC_CLIENT_RPC_ADDRESS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.SCHEDULER_DELAY_MS }}
+            - name: SCHEDULER_DELAY_MS
+              value: {{ .Values.othnode.SCHEDULER_DELAY_MS | quote }}
+            {{- end }}
+            {{- if .Values.othnode.STATE_FILE }}
+            - name: STATE_FILE
+              value: {{ .Values.othnode.STATE_FILE | quote }}
+            {{- end }}
+            {{- if .Values.othnode.TASK_DEFINITION_ID }}
+            - name: TASK_DEFINITION_ID
+              value: {{ .Values.othnode.TASK_DEFINITION_ID | quote }}
+            {{- end }}
+            {{- if .Values.othnode.VALIDATION_RETRY_LIMIT }}
+            - name: VALIDATION_RETRY_LIMIT
+              value: {{ .Values.othnode.VALIDATION_RETRY_LIMIT | quote }}
+            {{- end }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
+              eval $(cat /etc/env/* | sed 's/^/export /')
+              exec /usr/local/bin/otnode run {{ .Values.othnode.role }}{{ if .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }} {{ .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }}{{ end }}{{ if .Values.othnode.rpc }} --json-rpc{{ end }}{{ if .Values.othnode.persistent }} --p2p.datadir=/data{{ end }}{{ if .Values.othnode.metrics }} --metrics{{ end }}{{ if .Values.othnode.internalTasks }} --internal-tasks{{ end }}{{ if .Values.othnode.AVS_WEBAPI_URL }} --avs-webapi {{ .Values.othnode.AVS_WEBAPI_URL }}{{ end }}
+          volumeMounts:
+            {{- if .Values.othnode.persistent }}
+            {{- if not .Values.persistentVolumeClaimName }}
+            - name: {{ include "othnode.name" . }}-data
+            {{- else }}
+            - name: {{ .Values.persistentVolumeClaimName }}
+            {{- end }}
+              mountPath: {{.Values.othnode.home}}
+            {{- end }}
+            - name: pod-secrets
+              mountPath: "/etc/env"
+              readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "othnode.fullname" . }}
+        - name: pod-secrets
+          emptyDir: {}
+  {{- if and .Values.othnode.persistent (not .Values.persistentVolumeClaimName) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "othnode.name" . }}-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- with .Values.storage.storageClassName }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.size }}
+  {{- end }}
+{{- end }}
