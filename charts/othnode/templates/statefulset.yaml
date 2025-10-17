@@ -20,7 +20,9 @@ spec:
       labels:
         {{- include "othnode.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if .Values.secretManager.enabled }}
       serviceAccountName: {{ .Values.secretManager.serviceAccount.name }}
+      {{- end }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -31,16 +33,17 @@ spec:
       {{- end }}
       initContainers:
         - name: secret-copy-init
-          image: "ghcr.io/jqlang/jq:1.8.1"
-          command: ['sh', '-c']
+          image: "alpine:3.18"
+          command: ['/bin/sh', '-c']
           args:
             - |
+              apk add --no-cache jq
               POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
               SECRET_NAME="{{ if and .Values.secretManager.secrets (gt (len .Values.secretManager.secrets) 0) }}{{ (index .Values.secretManager.secrets 0).name }}{{ else }}aggregator-secrets{{ end }}"
               SECRET_FILE="/tmp/secrets/${SECRET_NAME}-${POD_INDEX}-env"
               mkdir -p /etc/env
               if [ -f "$SECRET_FILE" ]; then
-                jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' "$SECRET_FILE" > "/etc/env/secrets"
+                jq -r '.data.data | to_entries[] | "\(.key)=\(.value | @sh)"' "$SECRET_FILE" > "/etc/env/secrets"
               fi
           env:
             - name: POD_NAME
@@ -99,10 +102,6 @@ spec:
             {{- end }}
           env:
             - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_INDEX
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
@@ -203,7 +202,19 @@ spec:
           args:
             - |
               export POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
-              eval $(cat /etc/env/* | sed 's/^/export /')
+              # Safely load environment variables from files
+              for env_file in /etc/env/*; do
+                if [ -f "$env_file" ]; then
+                  while IFS='=' read -r key value; do
+                    # Skip empty lines and comments
+                    if [ -n "$key" ] && [ "${key#\#}" = "$key" ]; then
+                      # Remove quotes if present and export safely
+                      value=$(echo "$value" | sed 's/^['\''"]//; s/['\''"]$//')
+                      export "$key"="$value"
+                    fi
+                  done < "$env_file"
+                fi
+              done
               exec /usr/local/bin/otnode run {{ .Values.othnode.role }}{{ if .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }} {{ .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }}{{ end }}{{ if .Values.othnode.rpc }} --json-rpc{{ end }}{{ if .Values.othnode.persistent }} --p2p.datadir=/data{{ end }}{{ if .Values.othnode.metrics }} --metrics{{ end }}{{ if .Values.othnode.internalTasks }} --internal-tasks{{ end }}{{ if .Values.othnode.AVS_WEBAPI_URL }} --avs-webapi {{ .Values.othnode.AVS_WEBAPI_URL }}{{ end }}
           volumeMounts:
             {{- if .Values.othnode.persistent }}
