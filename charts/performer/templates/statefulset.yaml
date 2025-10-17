@@ -137,17 +137,11 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             - |
-              # Safely load environment variables from files
+              # Safely load environment variables from files using source
               for env_file in /etc/env/*; do
                 if [ -f "$env_file" ]; then
-                  while IFS='=' read -r key value; do
-                    # Skip empty lines and comments
-                    if [ -n "$key" ] && [ "${key#\#}" = "$key" ]; then
-                      # Remove quotes if present and export safely
-                      value=$(echo "$value" | sed 's/^['\''"]//; s/['\''"]$//')
-                      export "$key"="$value"
-                    fi
-                  done < "$env_file"
+                  # Use source to properly handle jq @sh quoted values
+                  . "$env_file"
                 fi
               done
               exec node dist/index.js

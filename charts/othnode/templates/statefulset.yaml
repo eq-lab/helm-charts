@@ -202,17 +202,11 @@ spec:
           args:
             - |
               export POD_INDEX=$(echo $POD_NAME | sed 's/.*-//')
-              # Safely load environment variables from files
+              # Safely load environment variables from files using source
               for env_file in /etc/env/*; do
                 if [ -f "$env_file" ]; then
-                  while IFS='=' read -r key value; do
-                    # Skip empty lines and comments
-                    if [ -n "$key" ] && [ "${key#\#}" = "$key" ]; then
-                      # Remove quotes if present and export safely
-                      value=$(echo "$value" | sed 's/^['\''"]//; s/['\''"]$//')
-                      export "$key"="$value"
-                    fi
-                  done < "$env_file"
+                  # Use source to properly handle jq @sh quoted values
+                  . "$env_file"
                 fi
               done
               exec /usr/local/bin/otnode run {{ .Values.othnode.role }}{{ if .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }} {{ .Values.othnode.OTHENTIC_BOOTSTRAP_NODES }}{{ end }}{{ if .Values.othnode.rpc }} --json-rpc{{ end }}{{ if .Values.othnode.persistent }} --p2p.datadir=/data{{ end }}{{ if .Values.othnode.metrics }} --metrics{{ end }}{{ if .Values.othnode.internalTasks }} --internal-tasks{{ end }}{{ if .Values.othnode.AVS_WEBAPI_URL }} --avs-webapi {{ .Values.othnode.AVS_WEBAPI_URL }}{{ end }}
