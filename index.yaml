@@ -49,6 +49,19 @@ entries:
     urls:
     - https://github.com/eq-lab/helm-charts/releases/download/amneziawg-0.1.0/amneziawg-0.1.0.tgz
     version: 0.1.0
+  db-migrations:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-10-31T15:05:39.964298654Z"
+    description: A Helm chart for Kubernetes
+    digest: 82d9920347128cc4fe9956532b286ac7315db8044c55d5b3d8f2c46d19470bf5
+    maintainers:
+    - name: zavertiaev
+    name: db-migrations
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/db-migrations-0.1.0/db-migrations-0.1.0.tgz
+    version: 0.1.0
   eq-backend:
   - apiVersion: v2
     appVersion: latest
@@ -341,4 +354,4 @@ entries:
     urls:
     - https://github.com/eq-lab/helm-charts/releases/download/migrations-0.1.1/migrations-0.1.1.tgz
     version: 0.1.1
-generated: "2025-07-23T11:18:49.412607606Z"
+generated: "2025-10-31T15:05:39.964360339Z"
