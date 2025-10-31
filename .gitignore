@@ -11,3 +11,6 @@
 
 # exceptions
 !.vscode/settings.json
+
+**/cvalues.yaml
+**/render*
