@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "db-migrations.fullname" . }}
+  labels:
+    {{- include "db-migrations.labels" . | nindent 4 }}
+data:
+  imageTag: {{ .Values.image.tag | quote }}

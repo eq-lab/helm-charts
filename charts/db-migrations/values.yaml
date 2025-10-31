@@ -1,0 +1,31 @@
+# Default values for migrations.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+annotations: {}
+
+backoffLimit: 1
+activeDeadlineSeconds: 1800
+ttlSecondsAfterFinished: 3600
+
+restartPolicy: Never
+imagePullSecrets: []
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: IfNotPresent
+cmd: []
+args: []
+env: []
+envFrom: []
+resources: {}
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
