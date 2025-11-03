@@ -1,0 +1,76 @@
+# Number of replicas to deploy
+replicaCount: 1
+
+# Container image configuration
+image:
+  # Docker image repository
+  repository: ghcr.io/eq-lab/enjoyoors-avs/validation-service
+  # Image pull policy
+  pullPolicy: IfNotPresent
+  # Image tag/version
+  tag: "v0.0.8"
+
+# Image pull secrets for private registries
+imagePullSecrets:
+  - name: github
+
+# Override the chart name
+nameOverride: ""
+# Override the full name of the chart
+fullnameOverride: ""
+
+# Pod annotations
+podAnnotations: {}
+# Pod security context
+podSecurityContext: {}
+# Container security context
+securityContext: {}
+
+# Resource limits and requests
+resources:
+  # Resource limits
+  limits:
+    cpu: 100m
+    memory: 256Mi
+  # Resource requests
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+
+# Validator application configuration
+validator:
+  # Whether to enable validator
+  enabled: true
+  # Mainnet chain ID
+  MAINNET_CHAIN_ID: ""
+  # Mainnet gateway contract address
+  MAINNET_GATEWAY_CONTRACT_ADDRESS: ""
+  # L2 chain ID
+  L2_CHAIN_ID: ""
+  # L2 gateway contract address
+  L2_GATEWAY_CONTRACT_ADDRESS: ""
+  # Task definition ID
+  TASK_DEFINITION_ID: ""
+  # Application port
+  APP_PORT: "4002"
+  # Validation retry limit
+  VALIDATION_RETRY_LIMIT: ""
+  # Message pool API URL
+  MESSAGE_POOL_API_URL: ""
+
+# Secret manager configuration
+secretManager:
+  # Whether to enable secret manager
+  enabled: true
+  # Service account configuration
+  serviceAccount:
+    # Service account name
+    name: "validator-sa"
+    # Whether to create service account
+    create: true
+  # Secrets configuration
+  secrets:
+    - name: "validator-secrets"
+      type: "Opaque"
+      path: "secrets/data/validator"

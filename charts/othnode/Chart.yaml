@@ -1,0 +1,8 @@
+apiVersion: v2
+name: othnode
+description: A Helm chart for othnode
+type: application
+version: 0.0.1
+maintainers:
+  - name: "mikolajsobolewski"
+appVersion: "latest"
