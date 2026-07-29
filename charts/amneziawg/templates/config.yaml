@@ -14,6 +14,12 @@ Jmin = {{ .Values.amneziawg.jmin }}
 Jmax = {{ .Values.amneziawg.jmax }}
 S1 = {{ .Values.amneziawg.s1 }}
 S2 = {{ .Values.amneziawg.s2 }}
+{{- if .Values.amneziawg.s3 }}
+S3 = {{ .Values.amneziawg.s3 }}
+{{- end }}
+{{- if .Values.amneziawg.s4 }}
+S4 = {{ .Values.amneziawg.s4 }}
+{{- end }}
 H1 = {{ .Values.amneziawg.h1 }}
 H2 = {{ .Values.amneziawg.h2  }}
 H3 = {{ .Values.amneziawg.h3 }}
