@@ -71,6 +71,9 @@ spec:
         {{- if not .Values.configSecretName }}
         checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
         {{- end }}
+        {{- if and .Values.amneziawg.headerProtection.enabled (not .Values.amneziawg.headerProtection.existingSecret) }}
+        checksum/header-protection: {{ include (print $.Template.BasePath "/header-protection-secret.yaml") . | sha256sum }}
+        {{- end }}
         {{- if .Values.podAnnotations }}
         {{- range $key, $value := .Values.podAnnotations  }}
         {{ $key }}: {{ $value | quote }}
@@ -192,6 +195,12 @@ spec:
             mountPath: /etc/wireguard/privatekey
             subPath: privatekey
           {{- end }}
+          {{- if .Values.amneziawg.headerProtection.enabled }}
+          - name: headerprotection
+            mountPath: /etc/amneziawg/header-protection.key
+            subPath: header-protection.key
+            readOnly: true
+          {{- end }}
           {{- if .Values.volumeMounts }}
             {{- .Values.volumeMounts | toYaml | nindent 10 }}
           {{- end }}
@@ -283,6 +292,14 @@ spec:
       - name: privatekey
         secret:
           secretName: "{{ coalesce .Values.secretName (printf "%s-wg-generated" .Release.Name) }}"
+      {{- end }}
+      {{- if .Values.amneziawg.headerProtection.enabled }}
+      - name: headerprotection
+        secret:
+          secretName: "{{ coalesce .Values.amneziawg.headerProtection.existingSecret (printf "%s-wg-header-protection" .Release.Name) }}"
+          items:
+            - key: header-protection.key
+              path: header-protection.key
       {{- end }}
       {{- if .Values.volumes }}
         {{- .Values.volumes | toYaml | nindent 6 }}

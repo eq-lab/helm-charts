@@ -1,6 +1,6 @@
 # amneziawg
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.2](https://img.shields.io/badge/AppVersion-3.0.2-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.2](https://img.shields.io/badge/AppVersion-3.0.2-informational?style=flat-square)
 
 A Helm chart for managing a amnezia-wg vpn in kubernetes
 
@@ -19,6 +19,9 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | amneziawg.h2 | string | `"1947194286"` |  |
 | amneziawg.h3 | string | `"929919087"` |  |
 | amneziawg.h4 | string | `"1621034805"` |  |
+| amneziawg.headerProtection.enabled | bool | `false` | Enable AmneziaWG 3 header protection (see warning above). Only turn on when the whole client fleet supports and sets the same key. |
+| amneziawg.headerProtection.existingSecret | string | `""` | Name of an existing Secret holding the key (hex) under key `header-protection.key`. Overrides `key` when set. |
+| amneziawg.headerProtection.key | string | `""` | 32-byte key as 64 hex chars, e.g. `openssl rand -hex 32` (NOT base64 / `awg genkey`). Must be identical on every client. Stored in a Secret. Required when enabled unless existingSecret is set. |
 | amneziawg.jc | string | `"6"` | 1 ≤ jc ≤ 128; recommended range is from 3 to 10 inclusive |
 | amneziawg.jmax | string | `"1000"` | jmin < jmax ≤ 1280; recommended value is 1000 |
 | amneziawg.jmin | string | `"50"` | jmin < jmax; recommended value is 50 |
@@ -59,7 +62,7 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | hostPort | int | `51820` | Host port to expose the VPN service on |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/mikolajsobolewski/awg"` |  |
-| image.tag | string | `"3.0.2"` | Immutable image tag matching appVersion (amneziawg-go / AmneziaWG 2.0). Published by oci-amneziawg CI from the `v3.0.2` git tag. |
+| image.tag | string | `"3.0.2-1"` | Immutable image tag (amneziawg-go 3.0.2, image rev 1 adds optional header protection). Published by oci-amneziawg CI from the `v3.0.2-1` git tag. Backward compatible with `3.0.2`. |
 | keygenJob.command | list | `["/job/entry-point.sh"]` | Specify the script to run to generate the private key |
 | keygenJob.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | keygenJob.containerSecurityContext.privileged | bool | `false` |  |
