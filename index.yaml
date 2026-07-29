@@ -3,6 +3,18 @@ entries:
   amneziawg:
   - apiVersion: v2
     appVersion: 3.0.2
+    created: "2026-07-29T15:37:01.394366236Z"
+    description: A Helm chart for managing a amnezia-wg vpn in kubernetes
+    digest: 5e1c1a5948fcb2d7a9acae4cec711c205723f88383794a6857945a43d1a48bb4
+    maintainers:
+    - name: mikolajsobolewski
+    name: amneziawg
+    type: application
+    urls:
+    - https://github.com/eq-lab/helm-charts/releases/download/amneziawg-0.4.0/amneziawg-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 3.0.2
     created: "2026-07-29T15:31:41.749442295Z"
     description: A Helm chart for managing a amnezia-wg vpn in kubernetes
     digest: 37fa9b0d2a276ed7df14a15d2e524d4b12afdfd1bb9efbddbdba33576dd5adca
@@ -366,4 +378,4 @@ entries:
     urls:
     - https://github.com/eq-lab/helm-charts/releases/download/migrations-0.1.1/migrations-0.1.1.tgz
     version: 0.1.1
-generated: "2026-07-29T15:31:41.749514984Z"
+generated: "2026-07-29T15:37:01.394443632Z"
