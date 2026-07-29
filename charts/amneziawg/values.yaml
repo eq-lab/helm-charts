@@ -2,8 +2,8 @@
 daemonSet: false
 image:
   repository: ghcr.io/mikolajsobolewski/awg
-  # -- Immutable image tag matching appVersion (amneziawg-go / AmneziaWG 2.0). Published by oci-amneziawg CI from the `v3.0.2` git tag.
-  tag: "3.0.2"
+  # -- Immutable image tag (amneziawg-go 3.0.2, image rev 1 adds optional header protection). Published by oci-amneziawg CI from the `v3.0.2-1` git tag. Backward compatible with `3.0.2`.
+  tag: "3.0.2-1"
   pullPolicy: IfNotPresent
 
 keygenJob:
@@ -66,6 +66,18 @@ amneziawg:
   h2: "1947194286"
   h3: "929919087"
   h4: "1621034805"
+  # AmneziaWG 3 header protection. WARNING: symmetric — the SAME key must be set on
+  # the server AND every client. Clients that cannot set it (notably amneziawg-apple /
+  # iOS/macOS) will fail to connect. Requires S1–S4 ≥ 8. The key is injected into the
+  # running device over the UAPI socket by the container entrypoint (the config parser
+  # cannot set it). Disabled by default.
+  headerProtection:
+    # -- Enable AmneziaWG 3 header protection (see warning above). Only turn on when the whole client fleet supports and sets the same key.
+    enabled: false
+    # -- 32-byte key as 64 hex chars, e.g. `openssl rand -hex 32` (NOT base64 / `awg genkey`). Must be identical on every client. Stored in a Secret. Required when enabled unless existingSecret is set.
+    key: ""
+    # -- Name of an existing Secret holding the key (hex) under key `header-protection.key`. Overrides `key` when set.
+    existingSecret: ""
 wireguard:
   # -- Address of the VPN server
   serverAddress: 10.34.0.1/24
