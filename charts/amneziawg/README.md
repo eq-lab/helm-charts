@@ -1,6 +1,6 @@
 # amneziawg
 
-![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.2](https://img.shields.io/badge/AppVersion-3.0.2-informational?style=flat-square)
 
 A Helm chart for managing a amnezia-wg vpn in kubernetes
 
@@ -24,6 +24,8 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | amneziawg.jmin | string | `"50"` | jmin < jmax; recommended value is 50 |
 | amneziawg.s1 | string | `"105"` | s1 — s1 < 1280; s1 + 56 ≠ s2; recommended range is from 15 to 150 inclusive |
 | amneziawg.s2 | string | `"61"` |  |
+| amneziawg.s3 | string | `""` | AmneziaWG 2.0 second packet-size pair. Opt-in: leave empty to keep the 1.x wire format. When set, every peer must set S3/S4 to the same values. Recommended 15–150; s3 + 56 ≠ s4 and s4 + 56 ≠ s3 |
+| amneziawg.s4 | string | `""` | AmneziaWG 2.0 second packet-size pair; see s3 |
 | autoscaling.enabled | bool | `true` |  |
 | autoscaling.maxReplicas | int | `10` |  |
 | autoscaling.minReplicas | int | `3` |  |
@@ -57,7 +59,7 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | hostPort | int | `51820` | Host port to expose the VPN service on |
 | image.pullPolicy | string | `"Always"` |  |
 | image.repository | string | `"ghcr.io/mikolajsobolewski/awg"` |  |
-| image.tag | string | `"master"` |  |
+| image.tag | string | `"main"` | Rolling tag built by the oci-amneziawg CI from its default branch (`main`). Carries AmneziaWG 2.0 (amneziawg-go 3.0.2). |
 | keygenJob.command | list | `["/job/entry-point.sh"]` | Specify the script to run to generate the private key |
 | keygenJob.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | keygenJob.containerSecurityContext.privileged | bool | `false` |  |

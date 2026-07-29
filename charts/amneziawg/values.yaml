@@ -2,7 +2,8 @@
 daemonSet: false
 image:
   repository: ghcr.io/mikolajsobolewski/awg
-  tag: master
+  # -- Rolling tag built by the oci-amneziawg CI from its default branch (`main`). Carries AmneziaWG 2.0 (amneziawg-go 3.0.2).
+  tag: main
   pullPolicy: Always
 
 keygenJob:
@@ -56,7 +57,11 @@ amneziawg:
   s1: "105"
   #-- s2 — s2 < 1280; recommended range is from 15 to 150 inclusive
   s2: "61"
-  #-- h1/h2/h3/h4 — must be unique among each other; recommended range is from 5 to 2147483647 inclusive
+  # -- AmneziaWG 2.0 second packet-size pair. Opt-in: leave empty to keep the 1.x wire format. When set, every peer must set S3/S4 to the same values. Recommended 15–150; s3 + 56 ≠ s4 and s4 + 56 ≠ s3
+  s3: ""
+  # -- AmneziaWG 2.0 second packet-size pair; see s3
+  s4: ""
+  #-- h1/h2/h3/h4 — must be unique among each other; recommended range is from 5 to 2147483647 inclusive. AmneziaWG 2.0 also accepts non-overlapping ranges "min-max" (e.g. "5-100000004"); all peers must match
   h1: "986154639"
   h2: "1947194286"
   h3: "929919087"
