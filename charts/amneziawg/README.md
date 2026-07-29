@@ -57,9 +57,9 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | healthSideCar.service.type | string | `"NodePort"` | Service type, given the use case, in most cases this should be NodePort |
 | healthSideCar.useHostPort | bool | `false` | When enabled the container will define a host port, in most cases this should only be used when deploying with daemonSet: true |
 | hostPort | int | `51820` | Host port to expose the VPN service on |
-| image.pullPolicy | string | `"Always"` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/mikolajsobolewski/awg"` |  |
-| image.tag | string | `"main"` | Rolling tag built by the oci-amneziawg CI from its default branch (`main`). Carries AmneziaWG 2.0 (amneziawg-go 3.0.2). |
+| image.tag | string | `"3.0.2"` | Immutable image tag matching appVersion (amneziawg-go / AmneziaWG 2.0). Published by oci-amneziawg CI from the `v3.0.2` git tag. |
 | keygenJob.command | list | `["/job/entry-point.sh"]` | Specify the script to run to generate the private key |
 | keygenJob.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | keygenJob.containerSecurityContext.privileged | bool | `false` |  |

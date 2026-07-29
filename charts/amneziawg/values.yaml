@@ -2,9 +2,9 @@
 daemonSet: false
 image:
   repository: ghcr.io/mikolajsobolewski/awg
-  # -- Rolling tag built by the oci-amneziawg CI from its default branch (`main`). Carries AmneziaWG 2.0 (amneziawg-go 3.0.2).
-  tag: main
-  pullPolicy: Always
+  # -- Immutable image tag matching appVersion (amneziawg-go / AmneziaWG 2.0). Published by oci-amneziawg CI from the `v3.0.2` git tag.
+  tag: "3.0.2"
+  pullPolicy: IfNotPresent
 
 keygenJob:
   # -- when enabled, uses a image with go bindings for k8s and wg
