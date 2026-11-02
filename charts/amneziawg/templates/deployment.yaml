@@ -20,8 +20,8 @@ capabilities:
 
 {{- define "wg.securitycontext" -}}
 {{ include "core.securitycontext" . }}
-runAsNonRoot: {{ .Values.securityContext.runAsNonRoot | default true }}
-runAsUser: {{ .Values.securityContext.runAsUser | default 1000 }}
+runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+runAsUser: {{ .Values.securityContext.runAsUser }}
 readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem | default true }}
 allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation | default true }}
 privileged: {{ .Values.securityContext.privileged | default false }}
@@ -71,6 +71,7 @@ spec:
         {{- if not .Values.configSecretName }}
         checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
         {{- end }}
+        checksum/entrypoint: {{ include (print $.Template.BasePath "/entrypoint-configmap.yaml") . | sha256sum }}
         {{- if and .Values.amneziawg.headerProtection.enabled (not .Values.amneziawg.headerProtection.existingSecret) }}
         checksum/header-protection: {{ include (print $.Template.BasePath "/header-protection-secret.yaml") . | sha256sum }}
         {{- end }}
@@ -114,7 +115,7 @@ spec:
       securityContext:
         fsGroup: {{ .Values.securityContext.runAsUser | default 1000 }}
         fsGroupChangePolicy: "OnRootMismatch"
-        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot | default true }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
         {{- include "wireguard.seccompProfile" . | indent 8 }}
       {{- if .Values.image.pullSecret }}
       imagePullSecrets:
@@ -150,6 +151,7 @@ spec:
         - name: wireguard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          command: ["/opt/amneziawg/entrypoint.sh"]
           ports:
           - containerPort: 51820
             protocol: UDP
@@ -185,6 +187,9 @@ spec:
           volumeMounts:
           - name: run
             mountPath: /run
+          - name: entrypoint
+            mountPath: /opt/amneziawg
+            readOnly: true
           {{- if not .Values.disableConfigManagement }}
           - name: config
             mountPath: /etc/wireguard/wg0.conf
@@ -197,7 +202,7 @@ spec:
           {{- end }}
           {{- if .Values.amneziawg.headerProtection.enabled }}
           - name: headerprotection
-            mountPath: /etc/amneziawg/header-protection.key
+            mountPath: /etc/wireguard/header-protection.key
             subPath: header-protection.key
             readOnly: true
           {{- end }}
@@ -283,6 +288,10 @@ spec:
       volumes:
       - name: run
         emptyDir: {}
+      - name: entrypoint
+        configMap:
+          name: "{{ .Release.Name }}-entrypoint"
+          defaultMode: 0555
       {{- if not .Values.disableConfigManagement }}
       - name: config
         secret:

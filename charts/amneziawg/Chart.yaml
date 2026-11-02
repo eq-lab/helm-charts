@@ -2,7 +2,7 @@ apiVersion: v2
 name: amneziawg
 description: A Helm chart for managing a amnezia-wg vpn in kubernetes
 type: application
-version: 0.4.0
-appVersion: "3.0.2"
+version: 0.5.0
+appVersion: "3.1.20260828"
 maintainers:
   - name: mikolajsobolewski

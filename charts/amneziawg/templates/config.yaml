@@ -1,10 +1,19 @@
 {{- define "wg-config-template" -}}
 {{- $natSourceNetOption := .Values.wireguard.natAddSourceNet | ternary (printf "%s %s" "-s" .Values.wireguard.serverCidr) ("") -}}
+{{- $headerProtection := "" -}}
+{{- if .Values.amneziawg.headerProtection.enabled -}}
+{{- range $s := list "s1" "s2" "s3" "s4" -}}
+{{- if lt (index $.Values.amneziawg $s | toString | atoi) 12 -}}
+{{- fail (printf "amneziawg.headerProtection requires amneziawg.%s >= 12" $s) -}}
+{{- end -}}
+{{- end -}}
+{{- $headerProtection = "wg set wg0 header-protection-key /etc/wireguard/header-protection.key && " -}}
+{{- end -}}
 [Interface]
 Address = {{ .Values.wireguard.serverAddress }}
 ListenPort = 51820
-PostUp = wg set wg0 private-key /etc/wireguard/privatekey && iptables -t nat -A POSTROUTING {{ $natSourceNetOption }} -o eth0 -j MASQUERADE
-PostDown = iptables -t nat -D POSTROUTING -s {{ $natSourceNetOption }} -o eth0 -j MASQUERADE
+PostUp = {{ $headerProtection }}wg set wg0 private-key /etc/wireguard/privatekey && iptables -t nat -A POSTROUTING {{ $natSourceNetOption }} -o eth0 -j MASQUERADE
+PostDown = iptables -t nat -D POSTROUTING {{ $natSourceNetOption }} -o eth0 -j MASQUERADE
 {{- range $key, $value := .Values.wireguard.interfaceOpts }}
 {{ $key }} = {{ $value }}
 {{- end }}

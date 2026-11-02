@@ -1,6 +1,6 @@
 # amneziawg
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.0.2](https://img.shields.io/badge/AppVersion-3.0.2-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.1.20260828](https://img.shields.io/badge/AppVersion-3.1.20260828-informational?style=flat-square)
 
 A Helm chart for managing a amnezia-wg vpn in kubernetes
 
@@ -20,8 +20,8 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | amneziawg.h3 | string | `"929919087"` |  |
 | amneziawg.h4 | string | `"1621034805"` |  |
 | amneziawg.headerProtection.enabled | bool | `false` | Enable AmneziaWG 3 header protection (see warning above). Only turn on when the whole client fleet supports and sets the same key. |
-| amneziawg.headerProtection.existingSecret | string | `""` | Name of an existing Secret holding the key (hex) under key `header-protection.key`. Overrides `key` when set. |
-| amneziawg.headerProtection.key | string | `""` | 32-byte key as 64 hex chars, e.g. `openssl rand -hex 32` (NOT base64 / `awg genkey`). Must be identical on every client. Stored in a Secret. Required when enabled unless existingSecret is set. |
+| amneziawg.headerProtection.existingSecret | string | `""` | Name of an existing Secret holding the key (base64) under key `header-protection.key`. Overrides `key` when set. |
+| amneziawg.headerProtection.key | string | `""` | Base64 key as produced by `awg genkey` (same format as `HeaderProtectionKey` in client configs). Must be identical on every client. Stored in a Secret. Required when enabled unless existingSecret is set. |
 | amneziawg.jc | string | `"6"` | 1 ≤ jc ≤ 128; recommended range is from 3 to 10 inclusive |
 | amneziawg.jmax | string | `"1000"` | jmin < jmax ≤ 1280; recommended value is 1000 |
 | amneziawg.jmin | string | `"50"` | jmin < jmax; recommended value is 50 |
@@ -61,8 +61,8 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | healthSideCar.useHostPort | bool | `false` | When enabled the container will define a host port, in most cases this should only be used when deploying with daemonSet: true |
 | hostPort | int | `51820` | Host port to expose the VPN service on |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"ghcr.io/mikolajsobolewski/awg"` |  |
-| image.tag | string | `"3.0.2-1"` | Immutable image tag (amneziawg-go 3.0.2, image rev 1 adds optional header protection). Published by oci-amneziawg CI from the `v3.0.2-1` git tag. Backward compatible with `3.0.2`. |
+| image.repository | string | `"docker.io/amneziavpn/amneziawg-go"` | Upstream AmneziaWG image. It has no CMD of its own; the chart supplies the entrypoint (files/entrypoint.sh) |
+| image.tag | string | `"3.1.20260828@sha256:cbafc02b8373a83f428272db6d8001b37bc02e6211cbd8c0cb4e2e3759b12b72"` | Pinned by digest: upstream tags are not curated releases (3.1.20260812/13 panic on cookie replies) |
 | keygenJob.command | list | `["/job/entry-point.sh"]` | Specify the script to run to generate the private key |
 | keygenJob.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | keygenJob.containerSecurityContext.privileged | bool | `false` |  |
@@ -129,8 +129,8 @@ A Helm chart for managing a amnezia-wg vpn in kubernetes
 | securityContext.allowPrivilegeEscalation | bool | `true` |  |
 | securityContext.privileged | bool | `false` |  |
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
-| securityContext.runAsNonRoot | bool | `true` |  |
-| securityContext.runAsUser | int | `1000` |  |
+| securityContext.runAsNonRoot | bool | `false` | The upstream image has no sudo, so awg-quick must run as root |
+| securityContext.runAsUser | int | `0` | Root is required (see runAsNonRoot); capabilities stay limited to NET_ADMIN/NET_RAW/SETUID/SETGID unless privileged |
 | service.annotations | object | `{}` | Annotations |
 | service.enabled | bool | `true` | Whether the service will be created or not |
 | service.externalTrafficPolicy | string | `""` | External Traffic Policy for the service |
