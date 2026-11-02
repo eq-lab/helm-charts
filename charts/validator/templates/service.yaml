@@ -1,0 +1,25 @@
+---
+{{- if .Values.validator.enabled }}
+{{- range $i := until (int .Values.replicaCount) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{ $i }}
+  labels:
+    {{- include "validator.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: validator-pod-{{ $i }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: {{ $.Values.validator.APP_PORT | default 4002 }}
+      protocol: TCP
+      name: rpc
+      targetPort: rpc
+  selector:
+    app.kubernetes.io/name: {{ $.Release.Name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    statefulset.kubernetes.io/pod-name: {{ $.Release.Name }}-{{ $i }}
+---
+{{- end }}
+{{- end }}

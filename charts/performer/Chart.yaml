@@ -1,0 +1,8 @@
+apiVersion: v2
+name: performer
+description: A Helm chart for performer
+type: application
+version: 0.0.1
+maintainers:
+  - name: "mikolajsobolewski"
+appVersion: "latest"
